@@ -2,6 +2,9 @@
 layout: table_wrappers
 ---
 
+{%- assign hierarchy = site.html_pages | where_exp:"item", "item.nav_exclude != true" | sort:"title" | sort:"nav_order" | group_by:"parent" -%}
+{%- assign top_nodes = hierarchy | where_exp:"item", "item.name == ''" | map: "items" | first -%}
+
 <!DOCTYPE html>
 
 <html lang="{{ site.lang | default: "en-US" }}">
@@ -22,7 +25,9 @@ layout: table_wrappers
       </div>
 
       <div class="navigation main-nav js-main-nav">
-        {% include nav.html %}
+        <nav aria-label="Main navigation" role="navigation">
+          {%- include nav.html nodes=top_nodes -%}
+        </nav>
       </div>
       <footer class="site-footer">
         <p class="text-small text-grey-dk-000 mb-4">This site uses <a href="https://github.com/pmarsceill/just-the-docs">Just the Docs</a>, a documentation theme for Jekyll.</p>
@@ -53,13 +58,7 @@ layout: table_wrappers
             {% if page.parent %}
               <nav class="breadcrumb-nav">
                 <ol class="breadcrumb-nav-list">
-                  {% if page.grand_parent %}
-                    <li class="breadcrumb-nav-list-item"><a href="{{ first_level_url }}">{{ page.grand_parent }}</a></li>
-                    <li class="breadcrumb-nav-list-item"><a href="{{ second_level_url }}">{{ page.parent }}</a></li>
-                  {% else %}
-                    <li class="breadcrumb-nav-list-item"><a href="{{ first_level_url }}">{{ page.parent }}</a></li>
-                  {% endif %}
-                  <li class="breadcrumb-nav-list-item"><span>{{ page.title }}</span></li>
+                  {%- include crumbs.html nodes=top_nodes -%}
                 </ol>
               </nav>
             {% endif %}
@@ -71,20 +70,9 @@ layout: table_wrappers
               {{ content }}
             {% endif %}
 
-          {% if page.has_children == true and page.has_toc != false %}
-            <hr>
-            <h2 class="text-delta">Table of contents</h2>
-            {% assign children_list = site.pages | sort:"nav_order" %}
-            <ul>
-              {% for child in children_list %}
-                {% if child.parent == page.title and child.title != page.title %}
-                <li>
-                  <a href="{{ child.url | absolute_url }}">{{ child.title }}</a>{% if child.summary %} - {{ child.summary }}{% endif %}
-                </li>
-                {% endif %}
-              {% endfor %}
-            </ul>
-          {% endif %}
+            {%- if page.has_toc != false -%}
+              {%- include toc.html -%}
+            {%- endif -%}
 
           {% if site.footer_content != nil %}
             <hr>

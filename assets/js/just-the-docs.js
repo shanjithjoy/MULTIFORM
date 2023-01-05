@@ -448,13 +448,53 @@ function searchLoaded(index, docs) {
 // Switch theme
 
 jtd.getTheme = function() {
-  var cssFileHref = document.querySelector('[rel="stylesheet"]').getAttribute('href');
+  var cssFile = document.querySelector('[rel="stylesheet"]');
+  var cssFileHref = cssFile.getAttribute('href');
   return cssFileHref.substring(cssFileHref.lastIndexOf('-') + 1, cssFileHref.length - 4);
 }
 
+
+//  creation of the function createThemeStylesheet only if it has not already been created in head
+{% if site.enable_localstorage_color_scheme == false %}  
+function createThemeStylesheet(theme) {
+  var link  = document.createElement('link');
+  link.rel  = 'stylesheet';
+  link.type = 'text/css';
+  link.href = "{{ '/assets/css/just-the-docs-*.css' | relative_url }}".replace("*",theme);
+  return link;
+}
+{% endif %}
+
 jtd.setTheme = function(theme) {
   var cssFile = document.querySelector('[rel="stylesheet"]');
-  cssFile.setAttribute('href', '{{ "assets/css/just-the-docs-" | relative_url }}' + theme + '.css');
+  cssFile.insertAdjacentElement('afterend', createThemeStylesheet(theme || "default"));
+  setTimeout(() => cssFile.remove(), 100);
+}
+
+jtd.switchThemeButton = function(button, event) {
+  {% if site.switch_color_scheme_available %}
+  const themes = {{ site.switch_color_scheme_available | jsonify }}; 
+  {% else %}
+  const themes = ["auto", "light", "dark"];
+  {% endif %}
+  var currentTheme = jtd.getTheme();
+  var nextTheme = themes[(themes.indexOf(currentTheme)+1)%themes.length];
+  jtd.setTheme(nextTheme);
+  button.getElementsByTagName('svg')[0].getElementsByTagName('use')[0].setAttribute('href',`#svg-${nextTheme}`);
+  {% if site.enable_localstorage_color_scheme != false %}
+  window.localStorage.setItem('theme', nextTheme);
+  {% endif %}
+}
+
+function initSwitchThemeButton() {
+  var buttons = [...document.getElementsByClassName("color-scheme-switch-theme-button")];
+  {% if site.enable_localstorage_color_scheme != false %}
+  theme = window.localStorage.getItem('theme');
+  if(theme != null){
+    buttons.forEach(button => button.getElementsByTagName('svg')[0].getElementsByTagName('use')[0].setAttribute('href',`#svg-${theme}`));
+  }
+  {% endif %}
+  buttons.forEach(button => jtd.addEvent(button, 'click', event => jtd.switchThemeButton(button, event)));
 }
 
 // Scroll site-nav to ensure the link to the current page is visible
@@ -475,6 +515,9 @@ jtd.onReady(function(){
   initNav();
   {%- if site.search_enabled != false %}
   initSearch();
+  {%- endif %}
+  {%- if site.enable_switch_color_scheme != false %}
+  initSwitchThemeButton();
   {%- endif %}
   scrollNav();
 });

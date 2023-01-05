@@ -2,7 +2,25 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <link rel="stylesheet" href="{{ '/assets/css/just-the-docs-default.css' | relative_url }}">
+  {% if site.enable_localstorage_color_scheme != false %}
+  <script>
+    function createThemeStylesheet(theme) {
+      var link  = document.createElement('link');
+      link.rel  = 'stylesheet';
+      link.type = 'text/css';
+      link.href = "{{ '/assets/css/just-the-docs-*.css' | relative_url }}".replace("*",theme);
+      return link;
+    }
+    
+    (function(){
+      theme = window.localStorage.getItem('theme') ?? "{{ site.color_scheme }}";
+      head = document.getElementsByTagName('head')[0];
+      head.appendChild(createThemeStylesheet(theme || "default"));
+    })();
+  </script>
+  {% else %}
+    <link rel="stylesheet" href="{{ color_scheme | default: 'default' | prepend: '/assets/css/just-the-docs-' | append: '.css' | relative_url }}" type="text/css">  
+  {% endif %}
 
   {% if site.ga_tracking != nil %}
     {% assign ga_tracking_ids = site.ga_tracking | split: "," %}

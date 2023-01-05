@@ -15,41 +15,59 @@ nav_order: 6
 
 ---
 
-## Color schemes
+## Color schemes (theme)
 {: .d-inline-block }
 
 New
 {: .label .label-green }
 
-Just the Docs supports two color schemes: light (default), and dark.
-
-To enable a color scheme, set the `color_scheme` parameter in your site's `_config.yml` file:
-
-#### Example
-{: .no_toc }
+Just the Docs supports two static color schemes (theme) out of the box: light and dark. In addition, it allows for an automatic mode that switches based on the user's [preferred color scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) (a feature of most browsers).
 
 ```yaml
-# Color scheme supports "light" (default) and "dark"
-color_scheme: dark
+color_scheme: auto 
+```
+- `nil` is the default value and use the `default` color scheme.
+- `"auto"` is use the user's system light/dark selection. This will enable automatic switching between ligth mode and dark mode based on the user's [preferred color scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) (a feature of most browsers).
+- `"light"` is use the light color scheme. This will force the color scheme.
+- `"dark"` is use the dark color scheme. This will force the color scheme.
+
+
+### Switch color scheme button
+
+This button will appear in the top navbar (the last button on the right, in the `aux-nav-list`). It is possible to enable, disable or show it only on selected pages, its enabling is independent of whether the color scheme is saved in local storage.
+
+```yaml
+enable_switch_color_scheme: true # true # false or "selected_pages". Show the switch color scheme button on the top navbar.
 ```
 
-<button class="btn js-toggle-dark-mode">Preview dark color scheme</button>
+{: .note }
+To enable it on selected pages, it must be added to the header of the page:
 
-<script>
-const toggleDarkMode = document.querySelector('.js-toggle-dark-mode');
+```md
+---
+layout: default
+title: Home
+enable_switch_color_scheme: true
+---
+```
 
-jtd.addEvent(toggleDarkMode, 'click', function(){
-  if (jtd.getTheme() === 'dark') {
-    jtd.setTheme('light');
-    toggleDarkMode.textContent = 'Preview dark color scheme';
-  } else {
-    jtd.setTheme('dark');
-    toggleDarkMode.textContent = 'Return to the light side';
-  }
-});
-</script>
+### Custom order of the switch color scheme button
 
-## Custom schemes
+Just the Docs supports to edit the rotation carousel of the color scheme by:
+```yaml
+switch_color_scheme_available: ["light", "dark", "auto"] # the default is ["auto", "light", "dark"]
+```
+
+### Enable or disable `localstorage`
+
+Since not all sites require local storage of the theme, and since local storage of the theme requires the use of a `<script>` in the `<head>` that blocks the loading of the rest of the HTML to avoid FART it can be disabled:
+
+```yaml
+enable_localstorage_color_scheme: true # or false 
+``` 
+
+{: .note }
+`enable_localstorage_color_scheme` *must* be enabled for changes of color scheme (theme) to persist across pages and sessions.
 
 ### Define a custom scheme
 
@@ -83,7 +101,8 @@ Keep in mind that changing a variable will not automatically change the value of
 For example, the default link color (`$link-color`) is set to `$purple-000`. However, redefining `$purple-000` in a custom color scheme will not automatically change `$link-color` to match it.
 Instead, each variable that relies on previously-cascaded values must be manually reimplemented by copying the dependent rules from `_variables.scss` — in this case, rewriting `$link-color: $purple-000;`.
 
-_Note:_ Editing the variables directly in `_sass/support/variables.scss` is not recommended and can cause other dependencies to fail.
+{: .note }
+Editing the variables directly in `_sass/support/variables.scss` is not recommended and can cause other dependencies to fail.
 Please use scheme files.
 
 ### Use a custom scheme
@@ -94,22 +113,49 @@ To use the custom color scheme, only set the `color_scheme` parameter in your si
 color_scheme: foo
 ```
 
-### Switchable custom scheme
+### Add a custom scheme to the switch theme button
 
-If you want to be able to change the scheme dynamically, for example via javascript, just add a file `assets/css/just-the-docs-foo.scss` (replace `foo` by your scheme name)
+Just the Docs, after create a new theme, supports to add a theme rotation carousel in 3 step:
+1. Just add a file `assets/css/just-the-docs-read.scss` (replace `read` by your scheme name)
 with the following content:
 
-{% raw %}
-    ---
-    ---
-    {% include css/just-the-docs.scss.liquid color_scheme="foo" %}
-{% endraw %}
+```
+{% raw %}---
+---
+{% include css/just-the-docs.scss.liquid color_scheme="read" %}{% endraw %}
+```
 
-This allows you to switch the scheme via the following javascript.
+{:style="counter-reset:none"}
+1. Just add a file `_sass/color_schemes/read.scss` (replace `read` by your scheme name) 
+1. Just add its name in `switch_theme_available_colour_scheme` (replace `read` by your scheme name):
+
+```yaml
+switch_color_scheme_available: ["auto", "light", "dark", "read"] # add read theme 
+```
+
+{:style="counter-reset:none"}
+1. Jut put into `_includes/icons/custom.html` a custom icon for the scheme (the correct size is 24x24):
+
+```html
+<!-- Feather. MIT License: https://github.com/twbs/icons/blob/main/LICENSE.md -->
+<symbol id="svg-read" viewBox="0 0 24 24" pointer-events="all">
+  <title>Selected read safe colour scheme</title>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+  </svg>
+</symbol>
+```
+
+### Switchable theme scheme
+
+If you want to be able to change the scheme dynamically, for example via javascript, via the following javascript (replace `foo` by your scheme name).
 
 ```js
 jtd.setTheme("foo")
 ```
+
+The scheme name supported are: `auto`, `light`, `dark`, `default`
 
 ## Override and completely custom styles
 

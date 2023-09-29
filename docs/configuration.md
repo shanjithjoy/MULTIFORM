@@ -149,28 +149,17 @@ _note: `footer_content` is deprecated, but still supported. For a better experie
 - `gh_edit_source` is the source directory that your project files are stored in (should be the same as [site.source](https://jekyllrb.com/docs/configuration/options/))
 - `gh_edit_view_mode` is `"tree"` by default, which brings the user to the github page; switch to `"edit"` to bring the user directly into editing mode
 
-## Color scheme
+## Color scheme (theme)
 
-```yaml
-# Color scheme supports "light" (default) and "dark"
-color_scheme: dark
-```
+- `color_scheme`: Color scheme (theme) currently supports `nil` (default), `"auto"` (based on the user's [preferred color scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme)), `"light"` (static), `"dark"` (static) or a custom scheme that you define.
+- `enable_local_storage_theme`: Enables the saving of the color scheme within the local site settings via the `localStorage` (GDPR compliant).
 
-<button class="btn js-toggle-dark-mode">Preview dark color scheme</button>
+{: .note }
+`enable_local_storage_theme` *must* be enabled for changes of color scheme (theme) to persist across pages and sessions.
 
-<script>
-const toggleDarkMode = document.querySelector('.js-toggle-dark-mode');
-
-jtd.addEvent(toggleDarkMode, 'click', function(){
-  if (jtd.getTheme() === 'dark') {
-    jtd.setTheme('light');
-    toggleDarkMode.textContent = 'Preview dark color scheme';
-  } else {
-    jtd.setTheme('dark');
-    toggleDarkMode.textContent = 'Return to the light side';
-  }
-});
-</script>
+- `enable_switch_color_scheme_button`: Show the switch theme button on the aux-nav-list.
+- `enable_switch_color_scheme`: `true`, `false` or `"selected_pages"`. Show the switch color scheme button on the top navbar. 
+- `switch_color_scheme_available_scheme`: Set the available theme for the switch button, the default is `["auto", "light", "dark"]`. You can add a custom scheme or remove a scheme.
 
 See [Customization]({% link docs/customization.md %}) for more information.
 
